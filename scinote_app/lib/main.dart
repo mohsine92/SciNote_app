@@ -1,67 +1,120 @@
 import 'package:flutter/material.dart';
-import 'article.dart';
-import 'api_service.dart';
+import 'article_page.dart'; 
 
 void main() {
-  runApp(const MyApp());
+  runApp(const SciNoteApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SciNoteApp extends StatelessWidget {
+  const SciNoteApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Liste Articles',
-      home: const ArticleListPage(),
+      debugShowCheckedModeBanner: false,
+      title: 'SciNote',
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primaryColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+      home: const HomePage(),
     );
   }
 }
 
-class ArticleListPage extends StatefulWidget {
-  const ArticleListPage({super.key});
-
-  @override
-  State<ArticleListPage> createState() => _ArticleListPageState();
-}
-
-class _ArticleListPageState extends State<ArticleListPage> {
-  late Future<List<Article>> _futureArticles;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureArticles = ApiService.fetchArticles();
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Liste des articles')),
-      body: FutureBuilder<List<Article>>(
-        future: _futureArticles,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Erreur : ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucun article disponible'));
-          } else {
-            final articles = snapshot.data!;
-            return ListView.builder(
-              itemCount: articles.length,
-              itemBuilder: (context, index) {
-                final article = articles[index];
-                return ListTile(
-                  title: Text(article.nom),
-                  subtitle: Text(article.description),
-                  trailing: Text(article.datePublication),
-                );
-              },
-            );
-          }
-        },
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo depuis URL
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50), // Cercle
+                child: Image.network(
+                  'https://i.pinimg.com/originals/18/d4/0c/18d40c585d4aec3e3cffe6286c9f6dd5.gif',
+                  width: 115,
+                  height: 115,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 100,
+                      height: 100,
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      child: const Icon(Icons.science, size: 60, color: Colors.black87),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'SciNote',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(221, 0, 0, 0),
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'The world explained, beautifully',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              const SizedBox(height: 40),
+              const Text(
+                "Dive into the stories, ideas, and discoveries that shaped modern science. Each scientific research reveals a scientist, an innovation, and the hidden beauty of the universe that surrounds us.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              const SizedBox(height: 100),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ArticlePage(),
+                    ),
+                  );
+                },
+                child: const Text('Read'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

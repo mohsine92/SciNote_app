@@ -1,19 +1,28 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'article.dart';
-
-const String apiBaseUrl = 'http://192.168.1.20:8888/scinote/api';
 
 class ApiService {
-  // Récupérer tous les articles
-  static Future<List<Article>> fetchArticles() async {
-    final response = await http.get(Uri.parse('$apiBaseUrl/ArticleApi.php'));
+  final String baseUrl = "http://192.168.1.20:8888/scinote/api"; 
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Article.fromJson(json)).toList();
-    } else {
-      throw Exception('Erreur réseau : ${response.statusCode}');
+  /// Récupère les articles avec pagination
+  Future<List> getArticles({int page = 1, int limit = 10}) async {
+    try {
+      final uri = Uri.parse('$baseUrl/ArticleApi.php?page=$page&limit=$limit');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return data;
+        } else if (data['articles'] != null && data['articles'] is List) {
+          return List.from(data['articles']);
+        }
+        return [];
+      } else {
+        throw Exception('Erreur API : ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau : $e');
     }
   }
 }
